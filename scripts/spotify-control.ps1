@@ -232,6 +232,18 @@ function Run-Action {
                 $isPlaying = $playback.PlaybackStatus -eq [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionPlaybackStatus]::Playing
                 $vol = [Audio.VolumeHelper]::GetAppVolume("Spotify")
 
+                $thumbBase64 = $null
+                if ($props.Thumbnail) {
+                    try {
+                        $streamWithContentType = Await ($props.Thumbnail.OpenReadAsync()) ([Windows.Storage.Streams.IRandomAccessStreamWithContentType])
+                        $method = [System.IO.WindowsRuntimeStreamExtensions].GetMethod("AsStreamForRead", [type[]]@([Windows.Storage.Streams.IInputStream]))
+                        $dotNetStream = $method.Invoke($null, @($streamWithContentType))
+                        $memoryStream = New-Object System.IO.MemoryStream
+                        $dotNetStream.CopyTo($memoryStream)
+                        $thumbBase64 = [Convert]::ToBase64String($memoryStream.ToArray())
+                    } catch {}
+                }
+
                 $result = [ordered]@{
                     active     = $true
                     title      = $props.Title
@@ -240,6 +252,7 @@ function Run-Action {
                     positionMs = [math]::Round($timeline.Position.TotalMilliseconds)
                     durationMs = [math]::Round($timeline.EndTime.TotalMilliseconds)
                     volume     = $vol
+                    thumbnail  = $thumbBase64
                 }
                 Write-Output ($result | ConvertTo-Json -Compress)
             } catch {

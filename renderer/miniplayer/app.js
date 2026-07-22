@@ -4,6 +4,7 @@ const progressFill = document.getElementById('progress-fill');
 const playIcon = document.getElementById('play-icon');
 const pauseIcon = document.getElementById('pause-icon');
 const volSlider = document.getElementById('volume-slider');
+const artImg = document.getElementById('art-img');
 
 function updateSliderTrack(val) {
   const pct = val * 100;
@@ -17,11 +18,26 @@ function renderState(status) {
     progressFill.style.width = '0%';
     playIcon.classList.remove('hidden');
     pauseIcon.classList.add('hidden');
+    artImg.style.display = 'none';
+    artImg.src = '';
     return;
   }
 
   titleEl.textContent = status.title || 'Unknown track';
   artistEl.textContent = status.artist || '\u00A0';
+
+  if (status.thumbnail) {
+    // If we're repeatedly setting the exact same source, the browser handles it without flickering, 
+    // but just to be safe we can avoid it if it hasn't changed.
+    const newSrc = "data:image/jpeg;base64," + status.thumbnail;
+    if (artImg.src !== newSrc) {
+      artImg.src = newSrc;
+    }
+    artImg.style.display = 'block';
+  } else {
+    artImg.style.display = 'none';
+    artImg.src = '';
+  }
 
   const pct = status.durationMs
     ? Math.min(100, (status.positionMs / status.durationMs) * 100)
