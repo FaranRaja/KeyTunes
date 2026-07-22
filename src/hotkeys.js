@@ -35,7 +35,7 @@ function handleKeyDown(e, down) {
     else if (matchKey === 'VOLUMEMUTE') matchKey = 'VOLUME MUTE';
     else if (matchKey === 'RETURN') matchKey = 'ENTER';
     
-    let isKeyMatch = (keyName === matchKey) || (keyName === matchKey.replace('ARROW', ''));
+    let isKeyMatch = (keyName === matchKey) || (keyName.replace(' ARROW', '') === matchKey) || (keyName.replace('ARROW', '').trim() === matchKey);
 
     if (!isKeyMatch) continue;
 

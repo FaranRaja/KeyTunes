@@ -1,52 +1,56 @@
 const { spawn } = require('child_process');
 const path = require('path');
+const readline = require('readline');
 
 const SCRIPT_PATH = path.join(__dirname, '..', 'scripts', 'spotify-control.ps1');
 
-function runPs(action) {
-  return new Promise((resolve, reject) => {
-    const ps = spawn('powershell.exe', [
-      '-NoProfile',
-      '-NonInteractive',
-      '-WindowStyle', 'Hidden',
-      '-ExecutionPolicy', 'Bypass',
-      '-File', SCRIPT_PATH,
-      '-Action', action
-    ], { windowsHide: true });
+let ps;
+let rl;
+let pendingStatus = [];
 
-    let stdout = '';
-    let stderr = '';
-    ps.stdout.on('data', (d) => { stdout += d.toString(); });
-    ps.stderr.on('data', (d) => { stderr += d.toString(); });
+function init() {
+  if (ps) return;
+  ps = spawn('powershell.exe', [
+    '-NoProfile',
+    '-NonInteractive',
+    '-WindowStyle', 'Hidden',
+    '-ExecutionPolicy', 'Bypass',
+    '-File', SCRIPT_PATH
+  ], { windowsHide: true });
 
-    ps.on('close', (code) => {
-      if (code !== 0) {
-        reject(new Error(stderr.trim() || `powershell exited with code ${code}`));
-        return;
+  rl = readline.createInterface({ input: ps.stdout });
+  rl.on('line', (line) => {
+    line = line.trim();
+    if (!line) return;
+    if (line.startsWith('{')) {
+      const req = pendingStatus.shift();
+      if (req) {
+        try { req.resolve(JSON.parse(line)); }
+        catch { req.resolve({ active: false }); }
       }
-      resolve(stdout.trim());
-    });
-
-    ps.on('error', (err) => {
-      // Most common cause: not running on Windows, or powershell.exe not on PATH
-      reject(err);
-    });
+    }
   });
+
+  ps.on('close', () => { ps = null; rl = null; });
 }
 
-async function playPause() { await runPs('PlayPause'); }
-async function next() { await runPs('Next'); }
-async function previous() { await runPs('Previous'); }
-async function volumeUp() { await runPs('VolumeUp'); }
-async function volumeDown() { await runPs('VolumeDown'); }
+function sendAction(action) {
+  init();
+  ps.stdin.write(action + '\n');
+}
 
-async function getStatus() {
-  const out = await runPs('Status');
-  try {
-    return JSON.parse(out);
-  } catch {
-    return { active: false };
-  }
+function playPause() { sendAction('PlayPause'); return Promise.resolve(); }
+function next() { sendAction('Next'); return Promise.resolve(); }
+function previous() { sendAction('Previous'); return Promise.resolve(); }
+function volumeUp() { sendAction('VolumeUp'); return Promise.resolve(); }
+function volumeDown() { sendAction('VolumeDown'); return Promise.resolve(); }
+
+function getStatus() {
+  init();
+  return new Promise((resolve) => {
+    pendingStatus.push({ resolve });
+    ps.stdin.write('Status\n');
+  });
 }
 
 module.exports = { playPause, next, previous, volumeUp, volumeDown, getStatus };

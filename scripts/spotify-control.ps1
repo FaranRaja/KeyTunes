@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [string]$Action
 )
 
@@ -72,8 +72,8 @@ namespace Audio {
     [Guid("bfb7ff88-7239-4fc9-8fa2-07c950be9c6d"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     public interface IAudioSessionControl2 {
         [PreserveSig] int GetState(out int state);
-        [PreserveSig] int GetSessionIdentifier(out IntPtr retVal);
-        [PreserveSig] int GetSessionInstanceIdentifier(out IntPtr retVal);
+        [PreserveSig] int GetSessionIdentifier([MarshalAs(UnmanagedType.LPWStr)] out string retVal);
+        [PreserveSig] int GetSessionInstanceIdentifier([MarshalAs(UnmanagedType.LPWStr)] out string retVal);
         [PreserveSig] int GetProcessId(out uint retVal);
     }
 
@@ -106,24 +106,21 @@ namespace Audio {
                     sessionEnumerator.GetSession(i, out control);
                     IAudioSessionControl2 control2 = control as IAudioSessionControl2;
                     if (control2 != null) {
-                        uint pid;
-                        control2.GetProcessId(out pid);
-                        if (pid > 0) {
-                            try {
-                                var p = Process.GetProcessById((int)pid);
-                                if (p.ProcessName.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0) {
-                                    ISimpleAudioVolume volume = control as ISimpleAudioVolume;
-                                    if (volume != null) {
-                                        float current;
-                                        volume.GetMasterVolume(out current);
-                                        float newVal = current + delta;
-                                        if (newVal > 1.0f) newVal = 1.0f;
-                                        if (newVal < 0.0f) newVal = 0.0f;
-                                        volume.SetMasterVolume(newVal, IntPtr.Zero);
-                                    }
+                        try {
+                            string id;
+                            control2.GetSessionIdentifier(out id);
+                            if (!string.IsNullOrEmpty(id) && id.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0) {
+                                ISimpleAudioVolume volume = control as ISimpleAudioVolume;
+                                if (volume != null) {
+                                    float current;
+                                    volume.GetMasterVolume(out current);
+                                    float newVal = current + delta;
+                                    if (newVal > 1.0f) newVal = 1.0f;
+                                    if (newVal < 0.0f) newVal = 0.0f;
+                                    volume.SetMasterVolume(newVal, IntPtr.Zero);
                                 }
-                            } catch { }
-                        }
+                            }
+                        } catch { }
                     }
                 }
             } catch { }
@@ -134,58 +131,60 @@ namespace Audio {
 
 # ---------- Actions ----------
 
-switch ($Action) {
-
-    'Status' {
-        $session = Get-SpotifySession
-        if (-not $session) {
-            Write-Output (@{ active = $false } | ConvertTo-Json -Compress)
-            break
-        }
-        try {
-            $props = Await ($session.TryGetMediaPropertiesAsync()) ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionMediaProperties])
-            $playback = $session.GetPlaybackInfo()
-            $timeline = $session.GetTimelineProperties()
-            $isPlaying = $playback.PlaybackStatus -eq [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionPlaybackStatus]::Playing
-
-            $result = [ordered]@{
-                active     = $true
-                title      = $props.Title
-                artist     = $props.Artist
-                isPlaying  = $isPlaying
-                positionMs = [math]::Round($timeline.Position.TotalMilliseconds)
-                durationMs = [math]::Round($timeline.EndTime.TotalMilliseconds)
+function Run-Action {
+    param([string]$act)
+    switch ($act) {
+        'Status' {
+            $session = Get-SpotifySession
+            if (-not $session) {
+                Write-Output (@{ active = $false } | ConvertTo-Json -Compress)
+                return
             }
-            Write-Output ($result | ConvertTo-Json -Compress)
-        } catch {
-            Write-Output (@{ active = $false } | ConvertTo-Json -Compress)
+            try {
+                $props = Await ($session.TryGetMediaPropertiesAsync()) ([Windows.Media.Control.GlobalSystemMediaTransportControlsSessionMediaProperties])
+                $playback = $session.GetPlaybackInfo()
+                $timeline = $session.GetTimelineProperties()
+                $isPlaying = $playback.PlaybackStatus -eq [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionPlaybackStatus]::Playing
+
+                $result = [ordered]@{
+                    active     = $true
+                    title      = $props.Title
+                    artist     = $props.Artist
+                    isPlaying  = $isPlaying
+                    positionMs = [math]::Round($timeline.Position.TotalMilliseconds)
+                    durationMs = [math]::Round($timeline.EndTime.TotalMilliseconds)
+                }
+                Write-Output ($result | ConvertTo-Json -Compress)
+            } catch {
+                Write-Output (@{ active = $false } | ConvertTo-Json -Compress)
+            }
+        }
+        'PlayPause' {
+            $session = Get-SpotifySession
+            if ($session) { Await ($session.TryTogglePlayPauseAsync()) ([bool]) | Out-Null }
+        }
+        'Next' {
+            $session = Get-SpotifySession
+            if ($session) { Await ($session.TrySkipNextAsync()) ([bool]) | Out-Null }
+        }
+        'Previous' {
+            $session = Get-SpotifySession
+            if ($session) { Await ($session.TrySkipPreviousAsync()) ([bool]) | Out-Null }
+        }
+        'VolumeUp' {
+            [Audio.VolumeHelper]::AdjustAppVolume("Spotify", 0.02)
+        }
+        'VolumeDown' {
+            [Audio.VolumeHelper]::AdjustAppVolume("Spotify", -0.02)
         }
     }
+}
 
-    'PlayPause' {
-        $session = Get-SpotifySession
-        if ($session) { Await ($session.TryTogglePlayPauseAsync()) ([bool]) | Out-Null }
-    }
-
-    'Next' {
-        $session = Get-SpotifySession
-        if ($session) { Await ($session.TrySkipNextAsync()) ([bool]) | Out-Null }
-    }
-
-    'Previous' {
-        $session = Get-SpotifySession
-        if ($session) { Await ($session.TrySkipPreviousAsync()) ([bool]) | Out-Null }
-    }
-
-    'VolumeUp' {
-        [Audio.VolumeHelper]::AdjustAppVolume("Spotify", 0.1)
-    }
-
-    'VolumeDown' {
-        [Audio.VolumeHelper]::AdjustAppVolume("Spotify", -0.1)
-    }
-
-    default {
-        Write-Error "Unknown action: $Action"
+if ($Action) {
+    Run-Action $Action
+} else {
+    while ($line = [Console]::ReadLine()) {
+        if ($line -eq 'exit') { break }
+        Run-Action $line
     }
 }
