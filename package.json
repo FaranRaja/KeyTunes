@@ -1,0 +1,34 @@
+{
+  "name": "keytunes",
+  "version": "1.0.0",
+  "description": "A lightweight background app that adds custom hotkeys and a mini tray player for Spotify.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "author": "you",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.yourname.keytunes",
+    "productName": "KeyTunes",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "renderer/**/*",
+      "assets/**/*"
+    ]
+  },
+  "dependencies": {
+    "node-global-key-listener": "^0.3.0"
+  }
+}

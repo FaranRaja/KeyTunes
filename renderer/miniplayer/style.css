@@ -1,0 +1,112 @@
+:root {
+  --bg: #1B1C23;
+  --surface-raised: #23242D;
+  --border: #33343F;
+  --amber: #1DB954;
+  --text: #F2F0EA;
+  --text-muted: #8A8D98;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.hidden { display: none !important; }
+
+.card {
+  width: 340px;
+  height: 132px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  -webkit-app-region: drag;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+}
+
+.art {
+  display: none;
+}
+
+.info {
+  -webkit-app-region: drag;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artist {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.progress {
+  margin-top: 8px;
+  height: 3px;
+  background: var(--surface-raised);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--amber);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.ctrl {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text);
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.ctrl:hover { border-color: var(--amber); color: var(--amber); }
+
+.ctrl-main {
+  width: 36px;
+  height: 36px;
+  background: var(--amber);
+  border: none;
+  color: #1A1400;
+}
+.ctrl-main:hover { filter: brightness(1.08); color: #1A1400; }
+
+.ctrl-small {
+  width: 26px;
+  height: 26px;
+}
+#vol-down {
+  margin-left: auto;
+}

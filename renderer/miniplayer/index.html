@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+<title>Now Playing</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card">
+    <div class="art" id="art"></div>
+    <div class="info">
+      <div class="title" id="title">Nothing playing</div>
+      <div class="artist" id="artist">&nbsp;</div>
+      <div class="progress"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <div class="controls">
+      <button id="prev" class="ctrl" title="Previous">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18 5v14l-8-7zM6 5v14h2V5z"/></svg>
+      </button>
+      <button id="playpause" class="ctrl ctrl-main" title="Play/Pause">
+        <svg id="play-icon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="pause-icon" class="hidden" width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>
+      </button>
+      <button id="next" class="ctrl" title="Next">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5v14l8-7zM16 5v14h2V5z"/></svg>
+      </button>
+      <button id="vol-down" class="ctrl ctrl-small" title="Volume down">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/></svg>
+      </button>
+      <button id="vol-up" class="ctrl ctrl-small" title="Volume up">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
+      </button>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

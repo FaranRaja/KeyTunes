@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+<title>KeyTunes</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="deck">
+
+    <header class="deck-header">
+      <div class="brand">
+        <div class="brand-mark">
+          <span class="bar b1"></span><span class="bar b2"></span><span class="bar b3"></span>
+        </div>
+        <div class="brand-text">
+          <p class="eyebrow">Background control surface</p>
+          <h1>KeyTunes</h1>
+        </div>
+      </div>
+      <div id="status-pill" class="status-pill status-unknown">
+        <span class="dot"></span>
+        <span class="status-label">Checking for Spotify&hellip;</span>
+      </div>
+    </header>
+
+    <section class="panel note-panel">
+      <p class="panel-copy">
+        No login, no Spotify account linking &mdash; this talks directly to the local Spotify app
+        through Windows' built-in media session system, the same one your keyboard's media keys use.
+        Just have Spotify open and these hotkeys work anywhere, on Free or Premium.
+        <strong>Volume hotkeys control ONLY Spotify's volume</strong>, leaving your main system volume untouched.
+      </p>
+    </section>
+
+    <section class="panel hotkeys-panel">
+      <p class="panel-eyebrow">Bindings</p>
+      <h2>Global hotkeys</h2>
+      <p class="panel-copy">Click a key combo to rebind it. These work anywhere &mdash; games, IDEs, full-screen apps.</p>
+
+      <div class="hotkey-list" id="hotkey-list">
+        <!-- rows injected by app.js -->
+      </div>
+    </section>
+
+    <footer class="deck-footer">
+      <p>Running quietly in the tray. Closing this window won't stop it &mdash; use Quit from the tray menu.</p>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
