@@ -27,6 +27,9 @@
       "createStartMenuShortcut": true,
       "uninstallDisplayName": "KeyTunes"
     },
+    "asarUnpack": [
+      "scripts/**/*"
+    ],
     "files": [
       "main.js",
       "preload.js",

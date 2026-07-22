@@ -2,7 +2,10 @@ const { spawn } = require('child_process');
 const path = require('path');
 const readline = require('readline');
 
-const SCRIPT_PATH = path.join(__dirname, '..', 'scripts', 'spotify-control.ps1');
+let SCRIPT_PATH = path.join(__dirname, '..', 'scripts', 'spotify-control.ps1');
+if (SCRIPT_PATH.includes('app.asar')) {
+  SCRIPT_PATH = SCRIPT_PATH.replace('app.asar', 'app.asar.unpacked');
+}
 
 let ps;
 let rl;
