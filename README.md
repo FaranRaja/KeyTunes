@@ -19,7 +19,10 @@ Unlike other Spotify controllers, KeyTunes does **not** rely on slow web scraper
 
 1. Go to the [Releases](https://github.com/FaranRaja/KeyTunes/releases) page.
 2. Download the latest `KeyTunes Setup.exe`.
-3. Run the installer and you're good to go!
+3. Double-click the installer to launch the Setup Wizard. 
+4. The wizard will let you choose your installation folder and give you the option to create a **Desktop Shortcut**.
+
+*Note: KeyTunes is properly registered with Windows, meaning you can easily uninstall it at any time from your Control Panel's "Add or Remove Programs" menu.*
 
 ## Usage
 
@@ -35,9 +38,9 @@ Once installed, KeyTunes will sit quietly in your system tray. You can right-cli
 - `CTRL+SHIFT+RIGHT`: Next Track
 - `CTRL+SHIFT+SPACE`: Play/Pause
 
-## Development
+## For Developers Only
 
-To run KeyTunes locally:
+If you want to modify the source code and run KeyTunes locally via Node.js:
 
 ```bash
 git clone https://github.com/FaranRaja/KeyTunes.git

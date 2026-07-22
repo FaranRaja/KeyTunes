@@ -14,11 +14,18 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.yourname.keytunes",
+    "appId": "com.faranraja.keytunes",
     "productName": "KeyTunes",
     "win": {
       "target": "nsis",
       "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "uninstallDisplayName": "KeyTunes"
     },
     "files": [
       "main.js",
