@@ -35,8 +35,8 @@ html, body {
 }
 
 .art-container {
-  width: 100px;
-  height: 100px;
+  width: 130px;
+  height: 130px;
   border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
