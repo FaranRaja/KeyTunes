@@ -16,6 +16,11 @@
   "build": {
     "appId": "com.faranraja.keytunes",
     "productName": "KeyTunes",
+    "publish": [{
+      "provider": "github",
+      "owner": "FaranRaja",
+      "repo": "KeyTunes"
+    }],
     "win": {
       "target": "nsis",
       "icon": "assets/icon.png"
@@ -40,6 +45,7 @@
     ]
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "node-global-key-listener": "^0.3.0"
   }
 }

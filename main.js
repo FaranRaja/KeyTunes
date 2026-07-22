@@ -1,4 +1,5 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, shell, dialog } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 
 const { Store } = require('./src/store');
@@ -177,6 +178,41 @@ function setupIpc() {
   });
 }
 
+// ---------- Auto Updater ----------
+
+function setupAutoUpdater() {
+  autoUpdater.autoDownload = false;
+
+  autoUpdater.on('update-available', (info) => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Available',
+      message: `A new version of KeyTunes (v${info.version}) is available. Would you like to download and install it?`,
+      buttons: ['Update', 'Later'],
+      defaultId: 0,
+      cancelId: 1
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.downloadUpdate();
+      }
+    });
+  });
+
+  autoUpdater.on('update-downloaded', () => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Ready',
+      message: 'The update has been downloaded. KeyTunes will now restart to install the update.',
+      buttons: ['Restart Now']
+    }).then(() => {
+      autoUpdater.quitAndInstall();
+    });
+  });
+
+  // Check for updates
+  autoUpdater.checkForUpdatesAndNotify();
+}
+
 // ---------- App lifecycle ----------
 
 app.whenReady().then(() => {
@@ -191,6 +227,7 @@ app.whenReady().then(() => {
   createMiniPlayerWindow();
   wireHotkeys();
   createSettingsWindow();
+  setupAutoUpdater();
 
   setInterval(() => {
     if (miniPlayerVisible) refreshMiniPlayerTrack();
