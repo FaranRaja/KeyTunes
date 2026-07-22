@@ -46,8 +46,8 @@ function createSettingsWindow() {
 
 function createMiniPlayerWindow() {
   miniPlayerWindow = new BrowserWindow({
-    width: 340,
-    height: 132,
+    width: 400,
+    height: 160,
     show: false,
     frame: false,
     resizable: false,
@@ -165,6 +165,11 @@ function setupIpc() {
       await map[action.type]();
       refreshMiniPlayerTrack();
     }
+  });
+
+  ipcMain.handle('set-volume', async (_evt, level) => {
+    await media.setVolume(level);
+    refreshMiniPlayerTrack();
   });
 
   ipcMain.handle('open-external', (_evt, url) => {

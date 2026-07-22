@@ -44,6 +44,7 @@ function next() { sendAction('Next'); return Promise.resolve(); }
 function previous() { sendAction('Previous'); return Promise.resolve(); }
 function volumeUp() { sendAction('VolumeUp'); return Promise.resolve(); }
 function volumeDown() { sendAction('VolumeDown'); return Promise.resolve(); }
+function setVolume(level) { sendAction(`SetVolume ${level}`); return Promise.resolve(); }
 
 function getStatus() {
   init();
@@ -53,4 +54,4 @@ function getStatus() {
   });
 }
 
-module.exports = { playPause, next, previous, volumeUp, volumeDown, getStatus };
+module.exports = { playPause, next, previous, volumeUp, volumeDown, setVolume, getStatus };

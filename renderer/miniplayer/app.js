@@ -3,6 +3,12 @@ const artistEl = document.getElementById('artist');
 const progressFill = document.getElementById('progress-fill');
 const playIcon = document.getElementById('play-icon');
 const pauseIcon = document.getElementById('pause-icon');
+const volSlider = document.getElementById('volume-slider');
+
+function updateSliderTrack(val) {
+  const pct = val * 100;
+  volSlider.style.background = `linear-gradient(to right, var(--amber) ${pct}%, var(--surface-raised) ${pct}%)`;
+}
 
 function renderState(status) {
   if (!status || !status.active) {
@@ -29,6 +35,11 @@ function renderState(status) {
     playIcon.classList.remove('hidden');
     pauseIcon.classList.add('hidden');
   }
+
+  if (status.volume !== undefined && status.volume >= 0 && document.activeElement !== volSlider) {
+    volSlider.value = status.volume;
+    updateSliderTrack(status.volume);
+  }
 }
 
 document.getElementById('playpause').addEventListener('click', () => {
@@ -40,11 +51,11 @@ document.getElementById('next').addEventListener('click', () => {
 document.getElementById('prev').addEventListener('click', () => {
   window.api.playerAction({ type: 'previous' });
 });
-document.getElementById('vol-up').addEventListener('click', () => {
-  window.api.playerAction({ type: 'volumeUp' });
-});
-document.getElementById('vol-down').addEventListener('click', () => {
-  window.api.playerAction({ type: 'volumeDown' });
+
+volSlider.addEventListener('input', (e) => {
+  const val = parseFloat(e.target.value);
+  updateSliderTrack(val);
+  window.api.setVolume(val);
 });
 
 window.api.onTrackUpdate(renderState);

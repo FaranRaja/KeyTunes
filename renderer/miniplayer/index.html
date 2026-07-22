@@ -25,12 +25,10 @@
       <button id="next" class="ctrl" title="Next">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 5v14l8-7zM16 5v14h2V5z"/></svg>
       </button>
-      <button id="vol-down" class="ctrl ctrl-small" title="Volume down">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4z"/></svg>
-      </button>
-      <button id="vol-up" class="ctrl ctrl-small" title="Volume up">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 5V4L8 9H4zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
-      </button>
+      <div class="volume-container">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" class="vol-icon"><path d="M4 9v6h4l5 5V4L8 9H4zm11.5 3a4.5 4.5 0 00-2.5-4v8a4.5 4.5 0 002.5-4z"/></svg>
+        <input type="range" id="volume-slider" class="volume-slider" min="0" max="1" step="0.01" value="0.5">
+      </div>
     </div>
   </div>
   <script src="app.js"></script>

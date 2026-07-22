@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('api', {
   setHotkeys: (hotkeys) => ipcRenderer.invoke('set-hotkeys', hotkeys),
   getStatus: () => ipcRenderer.invoke('get-status'),
   playerAction: (action) => ipcRenderer.invoke('player-action', action),
+  setVolume: (val) => ipcRenderer.invoke('set-volume', val),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
   onTrackUpdate: (callback) => {
     const listener = (_evt, state) => callback(state);

@@ -20,8 +20,8 @@ html, body {
 .hidden { display: none !important; }
 
 .card {
-  width: 340px;
-  height: 132px;
+  width: 400px;
+  height: 160px;
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -103,10 +103,42 @@ html, body {
 }
 .ctrl-main:hover { filter: brightness(1.08); color: #1A1400; }
 
-.ctrl-small {
-  width: 26px;
-  height: 26px;
-}
-#vol-down {
+.volume-container {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+
+.vol-icon {
+  flex-shrink: 0;
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  width: 80px;
+  height: 4px;
+  background: var(--surface-raised);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  transition: transform 0.1s, background 0.1s;
+}
+
+.volume-slider:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+  background: var(--amber);
 }

@@ -125,6 +125,85 @@ namespace Audio {
                 }
             } catch { }
         }
+
+        public static void SetAppVolume(string processName, float newVal) {
+            try {
+                var enumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                if (enumerator == null) return;
+                IMMDevice device;
+                enumerator.GetDefaultAudioEndpoint(0, 1, out device);
+                if (device == null) return;
+                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                object managerObj;
+                device.Activate(ref IID_IAudioSessionManager2, 1, IntPtr.Zero, out managerObj);
+                if (managerObj == null) return;
+                IAudioSessionManager2 manager = (IAudioSessionManager2)managerObj;
+                IAudioSessionEnumerator sessionEnumerator;
+                manager.GetSessionEnumerator(out sessionEnumerator);
+                if (sessionEnumerator == null) return;
+                int count;
+                sessionEnumerator.GetCount(out count);
+                for (int i = 0; i < count; i++) {
+                    IAudioSessionControl control;
+                    sessionEnumerator.GetSession(i, out control);
+                    IAudioSessionControl2 control2 = control as IAudioSessionControl2;
+                    if (control2 != null) {
+                        try {
+                            string id;
+                            control2.GetSessionIdentifier(out id);
+                            if (!string.IsNullOrEmpty(id) && id.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0) {
+                                ISimpleAudioVolume volume = control as ISimpleAudioVolume;
+                                if (volume != null) {
+                                    if (newVal > 1.0f) newVal = 1.0f;
+                                    if (newVal < 0.0f) newVal = 0.0f;
+                                    volume.SetMasterVolume(newVal, IntPtr.Zero);
+                                }
+                            }
+                        } catch { }
+                    }
+                }
+            } catch { }
+        }
+
+        public static float GetAppVolume(string processName) {
+            try {
+                var enumerator = (IMMDeviceEnumerator)(new MMDeviceEnumerator());
+                if (enumerator == null) return -1f;
+                IMMDevice device;
+                enumerator.GetDefaultAudioEndpoint(0, 1, out device);
+                if (device == null) return -1f;
+                Guid IID_IAudioSessionManager2 = typeof(IAudioSessionManager2).GUID;
+                object managerObj;
+                device.Activate(ref IID_IAudioSessionManager2, 1, IntPtr.Zero, out managerObj);
+                if (managerObj == null) return -1f;
+                IAudioSessionManager2 manager = (IAudioSessionManager2)managerObj;
+                IAudioSessionEnumerator sessionEnumerator;
+                manager.GetSessionEnumerator(out sessionEnumerator);
+                if (sessionEnumerator == null) return -1f;
+                int count;
+                sessionEnumerator.GetCount(out count);
+                for (int i = 0; i < count; i++) {
+                    IAudioSessionControl control;
+                    sessionEnumerator.GetSession(i, out control);
+                    IAudioSessionControl2 control2 = control as IAudioSessionControl2;
+                    if (control2 != null) {
+                        try {
+                            string id;
+                            control2.GetSessionIdentifier(out id);
+                            if (!string.IsNullOrEmpty(id) && id.IndexOf(processName, StringComparison.OrdinalIgnoreCase) >= 0) {
+                                ISimpleAudioVolume volume = control as ISimpleAudioVolume;
+                                if (volume != null) {
+                                    float current;
+                                    volume.GetMasterVolume(out current);
+                                    return current;
+                                }
+                            }
+                        } catch { }
+                    }
+                }
+            } catch { }
+            return -1f;
+        }
     }
 }
 "@ -ErrorAction SilentlyContinue
@@ -133,6 +212,12 @@ namespace Audio {
 
 function Run-Action {
     param([string]$act)
+    if ($act.StartsWith('SetVolume ')) {
+        $val = [float]$act.Substring(10)
+        [Audio.VolumeHelper]::SetAppVolume("Spotify", $val)
+        return
+    }
+
     switch ($act) {
         'Status' {
             $session = Get-SpotifySession
@@ -145,6 +230,7 @@ function Run-Action {
                 $playback = $session.GetPlaybackInfo()
                 $timeline = $session.GetTimelineProperties()
                 $isPlaying = $playback.PlaybackStatus -eq [Windows.Media.Control.GlobalSystemMediaTransportControlsSessionPlaybackStatus]::Playing
+                $vol = [Audio.VolumeHelper]::GetAppVolume("Spotify")
 
                 $result = [ordered]@{
                     active     = $true
@@ -153,6 +239,7 @@ function Run-Action {
                     isPlaying  = $isPlaying
                     positionMs = [math]::Round($timeline.Position.TotalMilliseconds)
                     durationMs = [math]::Round($timeline.EndTime.TotalMilliseconds)
+                    volume     = $vol
                 }
                 Write-Output ($result | ConvertTo-Json -Compress)
             } catch {
